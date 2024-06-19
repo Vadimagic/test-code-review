@@ -1,63 +1,72 @@
 <template>
-    <draggable 
-        class="task-grid" id="task-grid"
-        v-model="tasks" group="people"
-        animation=250
-        fallbackTolerance=3
-        @start="drag=true" @end="drag=false"
-        >   
-        <task v-for="(task, i) in tasks" 
-            :key="task.title" :task="task" 
-            @task-delete="$emit('task-delete', i)"
-            @task-toggle="$emit('task-toggle', i)"
-        />
-        <span class="no-tasks-message" v-if="tasks.length===0">No task for today :)</span>
-    </draggable>
+  <vue-draggable
+    v-if="tasks.length"
+    class="task-grid"
+    id="task-grid"
+    :value="tasks"
+    @input="setTasks"
+    group="people"
+    animation=250
+    fallbackTolerance=3
+  >   
+    <task
+      v-for="task in tasks" 
+      :key="task.id"
+      :task="task" 
+    />
+  </vue-draggable>
+  <div v-else class="no-tasks-message">
+    No task for today :)
+  </div>
 </template>
 
 <script>
 import Task from "@/components/Task.vue"
-import draggable from 'vuedraggable'
+import VueDraggable from 'vuedraggable'
+import { mapState, mapActions } from 'vuex'
 
 export default {
-    components: {
-        draggable,
-        Task, 
-    },
-    computed: {     
-        tasks: {
-            get: function() {
-                return this.$store.state.tasks
-            },
-            set: function(value) {
-                this.$store.commit('updateTasks', value)
-            }
-        },
-    },
+  components: {
+    VueDraggable,
+    Task, 
+  },
+  computed: {     
+    ...mapState([
+      "tasks"
+    ])
+  },
+  methods: {
+    ...mapActions([
+      "setTasks"
+    ])
+  }
 }
 </script>
 
 <style scoped>
-    .task-grid {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    @media (min-width: 576px) {
-        .task-grid {
-            margin-top: 20px;
-            margin: 40px 0 0 0;
-        }
-    }
+.task-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 
-    .no-tasks-message {
-        font-size: 26px;
-        color: #FFF2;
-        margin-top: 100px;
-    }
-    @media (min-width: 576px) {
-        .no-tasks-message {
-            font-size: 32px;
-        }
-    }
+@media(min-width: 576px) {
+  .task-grid {
+    margin-top: 20px;
+    margin: 40px 0 0;
+  }
+}
+
+.no-tasks-message {
+  font-size: 26px;
+  color: #FFF2;
+  margin-top: 100px;
+  text-align: center;
+}
+
+@media(min-width: 576px) {
+  .no-tasks-message {
+    font-size: 32px;
+  }
+}
 </style>
